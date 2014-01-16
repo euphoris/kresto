@@ -24,6 +24,10 @@ class Sentence():
         return hash(self.raw)
 
 
+STOP_WORD_SET = set(['.', ',', ':', ';', '"', "'",
+                     'a', 'an', 'the', 'this', 'that', 'any'])
+
+
 class Corpus():
     def __init__(self, text=None):
         self.index = collections.defaultdict(set)
@@ -43,7 +47,6 @@ class Corpus():
             for v in sntn.vocab:
                 self.index[v].add(sntn)
 
-
     def concordance(self, words):
         words = [w.lower() for w in words]
 
@@ -56,7 +59,6 @@ class Corpus():
             index &= self.index[word]
         return index
 
-
     def find_tag(self, words, tag):
         index = self.concordance(words)
         verb_counter = collections.Counter()
@@ -65,4 +67,13 @@ class Corpus():
             for verb in verbs:
                 verb_counter[verb] += 1
         return verb_counter
+
+    def used_with(self, words):
+        index = self.concordance(words)
+        exclude = set(w.lower() for w in words) | STOP_WORD_SET
+        vocab_counter = collections.Counter()
+        for sentence in index:
+            for word in (sentence.vocab - exclude):
+                vocab_counter[word] += 1
+        return vocab_counter
 

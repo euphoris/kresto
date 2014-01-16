@@ -31,3 +31,8 @@ def test_concordance(cps):
 def test_find_verb(cps):
     verbs = cps.find_tag(['example'], 'VB')
     assert verbs.items() == [(('is', 'VBZ'), 1)]
+
+
+def test_used_with(cps):
+    counter = cps.used_with(['world'])
+    assert counter['hello'] == 1
