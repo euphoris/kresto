@@ -18,10 +18,14 @@ class Sentence():
 
 
 class Corpus():
-    def __init__(self, text):
+    def __init__(self, text=None):
         self.index = collections.defaultdict(set)
         self.sentences = []
 
+        if text:
+            self.add_text(text)
+
+    def add_text(self, text):
         tokenizer = nltk.PunktSentenceTokenizer()
         sentences = tokenizer.sentences_from_text(text)
 

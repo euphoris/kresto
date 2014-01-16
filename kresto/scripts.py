@@ -4,7 +4,7 @@ import cmd
 import re
 import sys
 
-from .corpus import Corpus
+from .data import load_corpus
 
 
 class CmdShell(cmd.Cmd, object):
@@ -35,10 +35,6 @@ def run_command():
         print('kresto [filename]')
         sys.exit(-1)
 
-    with open(filename) as f:
-        text = f.read()
-        cps = Corpus(text)
-
-    shell = CmdShell(cps)
+    shell = CmdShell(load_corpus(filename))
     shell.cmdloop()
 
