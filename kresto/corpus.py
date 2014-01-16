@@ -11,7 +11,14 @@ class Sentence():
     def __init__(self, raw):
         self.raw = whitespace_re.sub(' ', raw.strip())
         self.words = nltk.word_tokenize(self.raw)
+        self._tokens = None
         self.vocab = set(w.lower() for w in self.words)
+
+    @property
+    def tokens(self):
+        if not self._tokens:
+            self._tokens = nltk.pos_tag(self.words)
+        return self._tokens
 
     def __hash__(self):
         return hash(self.raw)

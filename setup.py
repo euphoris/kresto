@@ -14,6 +14,7 @@ setup(
     url='https://github.com/euphoris/kresto',
     tests_require=['pytest'],
     install_requires=[
+        'numpy>=1.8.0',
         'nltk>=2.0.4',
         ],
     entry_points = {
