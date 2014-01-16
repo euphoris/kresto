@@ -33,10 +33,10 @@ class Corpus():
                 self.index[v].add(sntn)
 
 
-    def concordance(self, *words):
-        try:
+    def concordance(self, words):
+        if words:
             index = set(self.index[words[0]])
-        except IndexError:
+        else:
             return set()
 
         for word in words[1:]:

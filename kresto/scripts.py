@@ -14,7 +14,7 @@ class CmdShell(cmd.Cmd, object):
 
     def do_find(self, args):
         words = args.split(' ')
-        sentences = self.corpus.concordance(*words)
+        sentences = self.corpus.concordance(words)
         match_re = re.compile('('+'|'.join(words)+')', flags=re.IGNORECASE)
 
         for i, sentence in enumerate(sentences):

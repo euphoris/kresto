@@ -22,7 +22,7 @@ def test_index(cps):
 
 
 def test_concordance(cps):
-    assert len(cps.concordance('world')) == 2
-    assert len(cps.concordance('what', 'world')) == 1
-    assert len(cps.concordance('bye')) == 0
-    assert len(cps.concordance()) == 0
+    assert len(cps.concordance(['world'])) == 2
+    assert len(cps.concordance(['what', 'world'])) == 1
+    assert len(cps.concordance(['bye'])) == 0
+    assert len(cps.concordance([])) == 0
