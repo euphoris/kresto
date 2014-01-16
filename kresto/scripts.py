@@ -22,6 +22,14 @@ class CmdShell(cmd.Cmd, object):
                   match_re.sub('\033[30;43m\\1\033[0m', sentence.raw),
                   sep='')
 
+    def do_verb(self, args):
+        words = args.split(' ')
+        counter = self.corpus.find_tag(words, tag='VB').items()
+        counter = sorted(counter, key=lambda (_, n): n, reverse=True)
+        for token, count in counter:
+            word, tag = token
+            print(word, tag, count)
+
     def do_quit(self, args):
         return True
 

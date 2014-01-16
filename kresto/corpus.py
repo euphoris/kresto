@@ -45,6 +45,8 @@ class Corpus():
 
 
     def concordance(self, words):
+        words = [w.lower() for w in words]
+
         if words:
             index = set(self.index[words[0]])
         else:
@@ -53,3 +55,14 @@ class Corpus():
         for word in words[1:]:
             index &= self.index[word]
         return index
+
+
+    def find_tag(self, words, tag):
+        index = self.concordance(words)
+        verb_counter = collections.Counter()
+        for sentence in index:
+            verbs = (t for t in sentence.tokens if t[1].startswith(tag))
+            for verb in verbs:
+                verb_counter[verb] += 1
+        return verb_counter
+

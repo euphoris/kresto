@@ -2,7 +2,7 @@ import pytest
 from kresto.corpus import Corpus
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def cps():
     return Corpus('Hello world! This is an example. What a wonderful world!')
 
@@ -26,3 +26,8 @@ def test_concordance(cps):
     assert len(cps.concordance(['what', 'world'])) == 1
     assert len(cps.concordance(['bye'])) == 0
     assert len(cps.concordance([])) == 0
+
+
+def test_find_verb(cps):
+    verbs = cps.find_tag(['example'], 'VB')
+    assert verbs.items() == [(('is', 'VBZ'), 1)]
