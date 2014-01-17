@@ -25,8 +25,30 @@ class Sentence():
         return hash(self.raw)
 
 
-STOP_WORD_SET = {'.', ',', ':', ';', '"', "'",
-                 'a', 'an', 'the', 'this', 'that', 'any'}
+SYMBOL_SET = set('!@#$%^&*()-_+=,.<>;\':"[]{}`~')
+
+RP_SET = {'a', 'an', 'the', 'this', 'these', 'that', 'those', 'any', 'all'}
+
+PRN_SET = {'i', 'my', 'me',
+            'we', 'our', 'us',
+            'you', 'your',
+            'she', 'her',
+            'he', 'his', 'him',
+            'they', 'their', 'them'}
+
+IN_SET = {'aboard', 'about', 'above', 'across', 'after', 'against', 'along',
+          'amid', 'among', 'anti', 'around', 'as', 'at', 'before', 'behind',
+          'below', 'beneath', 'beside', 'besides', 'between', 'beyond', 'but',
+          'by', 'concerning', 'considering', 'despite', 'down',
+          'during', 'except', 'excepting', 'excluding', 'following',
+          'for', 'from', 'in', 'inside', 'into', 'like', 'minus', 'near', 'of',
+          'off', 'on', 'onto', 'opposite', 'outside', 'over', 'past', 'per',
+          'plus', 'regarding', 'round', 'save', 'since', 'than',
+          'through', 'to', 'toward', 'towards', 'under', 'underneath',
+          'unlike', 'until', 'up', 'upon', 'versus', 'via', 'with', 'within',
+          'without', }
+
+STOP_WORD_SET = SYMBOL_SET | RP_SET | PRN_SET | IN_SET
 
 
 class Corpus():
@@ -44,7 +66,7 @@ class Corpus():
         for s in sentences:
             sntn = Sentence(s)
             self.sentences.append(sntn)
-            
+
             for v in sntn.vocab:
                 self.index[v].add(sntn)
 

@@ -4,14 +4,16 @@ from kresto.corpus import Corpus
 
 @pytest.fixture(scope='module')
 def cps():
-    return Corpus('Hello world! This is an example. What a wonderful world!')
+    return Corpus('''Hello world!
+                     This is an example of corpus.
+                     What a wonderful world!''')
 
 
 def test_corpus(cps):
     assert len(cps.sentences) == 3
 
     sent = cps.sentences[1]
-    assert len(sent.words) == 5
+    assert sent.raw == 'This is an example of corpus.'
     assert 'this' in sent.vocab
     assert 'world' not in sent.vocab
 
@@ -36,3 +38,8 @@ def test_find_verb(cps):
 def test_used_with(cps):
     counter = cps.used_with(['world'])
     assert counter['hello'] == 1
+
+
+def test_stop_word(cps):
+    counter = cps.used_with(['example'])
+    assert counter['of'] == 0
