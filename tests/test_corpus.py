@@ -43,3 +43,7 @@ def test_used_with(cps):
 def test_stop_word(cps):
     counter = cps.used_with(['example'])
     assert counter['of'] == 0
+
+def test_between(cps):
+    counter = cps.between('what', 'world')
+    assert counter['a wonderful'] == 1

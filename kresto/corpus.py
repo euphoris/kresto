@@ -108,3 +108,15 @@ class Corpus():
             for word in (sentence.vocab - exclude):
                 vocab_counter[word] += 1
         return vocab_counter
+
+    def between(self, word1, word2):
+        index = self.concordance([word1, word2])
+        counter = collections.Counter()
+        for sentence in index:
+            words = [w.lower() for w in sentence.words]
+            i1 = words.index(word1)
+            i2 = words.index(word2)
+            if i1 < i2:
+                btw = ' '.join(sentence.words[i1+1:i2])
+                counter[btw] += 1
+        return counter

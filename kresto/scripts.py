@@ -40,6 +40,12 @@ class CmdShell(cmd.Cmd, object):
         for word, n in counter:
             print(word, n)
 
+    def do_between(self, args):
+        words = args.split(' ')
+        counter = sort_items(self.corpus.between(words[0], words[1]))
+        for word, n in counter:
+            print(word, n)
+
     def do_quit(self, args):
         return True
 
