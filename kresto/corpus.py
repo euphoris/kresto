@@ -5,7 +5,7 @@ import html2text
 import nltk
 
 
-whitespace_re = re.compile('\s+')
+whitespace_re = re.compile(r'\s+')
 
 
 class Sentence():
@@ -25,8 +25,8 @@ class Sentence():
         return hash(self.raw)
 
 
-STOP_WORD_SET = set(['.', ',', ':', ';', '"', "'",
-                     'a', 'an', 'the', 'this', 'that', 'any'])
+STOP_WORD_SET = {'.', ',', ':', ';', '"', "'",
+                 'a', 'an', 'the', 'this', 'that', 'any'}
 
 
 class Corpus():
@@ -86,4 +86,3 @@ class Corpus():
             for word in (sentence.vocab - exclude):
                 vocab_counter[word] += 1
         return vocab_counter
-

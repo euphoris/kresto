@@ -55,4 +55,3 @@ def run_command():
 
     shell = CmdShell(load_corpus(filename))
     shell.cmdloop()
-
