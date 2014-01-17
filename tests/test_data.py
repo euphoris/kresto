@@ -9,7 +9,7 @@ license_path = os.path.join(fixtures_path, 'license')
 
 
 def test_load_corpus_from_directory():
-    corpus = load_corpus(fixtures_path)
+    corpus = load_corpus(license_path)
     assert len(corpus.concordance(['software'])) == 26
 
 
@@ -36,3 +36,8 @@ def test_load_corpus_from_html():
     corpus = load_corpus(html_path)
     result = list(corpus.concordance(['hello']))
     assert result[0].raw == 'Hello world.'
+
+
+def test_load_corpus_recursively():
+    corpus = load_corpus(fixtures_path)
+    assert len(corpus.concordance(['DOCTYPE'])) == 0
