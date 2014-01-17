@@ -1,6 +1,8 @@
 import os
 import zipfile
 
+import html2text
+
 from .corpus import Corpus
 
 
@@ -18,6 +20,11 @@ def load_corpus(path):
                     if not name.endswith('/'):
                         with zf.open(name) as f:
                             c.add_text(f.read())
+        elif path.endswith('.html'):
+            h = html2text.HTML2Text()
+            h.ignore_links = True
+            with open(path) as f:
+                c.add_text(h.handle(f.read()))
         else:
             with open(path) as f:
                 c.add_text(f.read())

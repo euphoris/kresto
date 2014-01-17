@@ -16,10 +16,11 @@ setup(
     install_requires=[
         'numpy>=1.8.0',
         'nltk>=2.0.4',
-        ],
-    entry_points = {
+        'html2text==3.200.3',
+    ],
+    entry_points={
         'console_scripts': [
-                'kresto = kresto.scripts:run_command',
-            ]
-        },
-    )
+            'kresto = kresto.scripts:run_command',
+        ]
+    },
+)

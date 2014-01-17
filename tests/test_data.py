@@ -29,3 +29,10 @@ def test_load_corpus_from_zipfile():
     zip_path = os.path.join(fixtures_path, 'license.zip')
     corpus = load_corpus(zip_path)
     assert corpus
+
+
+def test_load_corpus_from_html():
+    html_path = os.path.join(fixtures_path, 'sample.html')
+    corpus = load_corpus(html_path)
+    result = list(corpus.concordance(['hello']))
+    assert result[0].raw == 'Hello world.'
