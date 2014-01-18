@@ -14,3 +14,11 @@ def test_parser_limit_default():
 def test_parser_limit():
     args = parser.parse_args('hello world -l 10'.split())
     assert args.limit == 10
+
+
+def test_parser_stem():
+    args = parser.parse_args('hello'.split())
+    assert not args.stem
+
+    args = parser.parse_args('hello -s'.split())
+    assert args.stem

@@ -5,6 +5,8 @@ import cmd
 import re
 import sys
 
+import nltk
+
 from .data import load_corpus
 
 
@@ -12,13 +14,17 @@ def sort_items(counter):
     return sorted(counter.items(), key=lambda (_, n): n, reverse=True)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('words', nargs='+')
-parser.add_argument('--limit', '-l', type=int, default=20)
+def create_parser(nword):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('words', nargs=nword)
+    parser.add_argument('--limit', '-l', type=int, default=20)
+    parser.add_argument('--stem', '-s', action='store_const', const=True,
+                        default=False)
+    return parser
 
-between_parser = argparse.ArgumentParser()
-between_parser.add_argument('words', nargs=2)
-between_parser.add_argument('--limit', '-l', type=int, default=20)
+
+parser = create_parser('+')
+between_parser = create_parser(2)
 
 
 def parse(args):
@@ -30,11 +36,17 @@ class CmdShell(cmd.Cmd, object):
     def __init__(self, cps):
         super(CmdShell, self).__init__()
         self.corpus = cps
+        self._stemmer = nltk.LancasterStemmer()
 
     def do_find(self, args):
         args = parse(args)
-        sentences = self.corpus.concordance(args.words)
-        match_re = re.compile('('+'|'.join(args.words)+')', flags=re.IGNORECASE)
+        if args.stem:
+            words = [self._stemmer.stem(w) for w in args.words]
+        else:
+            words = args.words
+        sentences = self.corpus.concordance(words, args.stem)
+
+        match_re = re.compile('('+'|'.join(words)+')', flags=re.IGNORECASE)
 
         for i, sentence in enumerate(sentences):
             print(i, ') ',
@@ -45,20 +57,21 @@ class CmdShell(cmd.Cmd, object):
 
     def do_verb(self, args):
         args = parse(args)
-        counter = sort_items(self.corpus.find_tag(args.words, tag='VB'))
+        counter = sort_items(self.corpus.find_tag(args.words, 'VB', args.stem))
         for token, count in counter[:args.limit]:
             word, tag = token
             print(word, tag, count)
 
     def do_with(self, args):
         args = parse(args)
-        counter = sort_items(self.corpus.used_with(args.words))
+        counter = sort_items(self.corpus.used_with(args.words, args.stem))
         for word, n in counter[:args.limit]:
             print(word, n)
 
     def do_between(self, args):
         args = between_parser.parse_args(args.split())
-        counter = sort_items(self.corpus.between(args.words[0], args.words[1]))
+        counter = self.corpus.between(args.words[0], args.words[1], args.stem)
+        counter = sort_items(counter)
         for word, n in counter[:args.limit]:
             print(word, n)
 

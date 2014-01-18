@@ -2,15 +2,19 @@ import pytest
 from kresto.corpus import Corpus
 
 
+text = '''Hello world!
+          This is an example of corpus.
+          What a wonderful world!
+          Stemming is easy'''
+
+
 @pytest.fixture(scope='module')
 def cps():
-    return Corpus('''Hello world!
-                     This is an example of corpus.
-                     What a wonderful world!''')
+    return Corpus(text)
 
 
 def test_corpus(cps):
-    assert len(cps.sentences) == 3
+    assert len(cps.sentences) == len(text.split('\n'))
 
     sent = cps.sentences[1]
     assert sent.raw == 'This is an example of corpus.'
@@ -44,6 +48,12 @@ def test_stop_word(cps):
     counter = cps.used_with(['example'])
     assert counter['of'] == 0
 
+
 def test_between(cps):
     counter = cps.between('what', 'world')
     assert counter['a wonderful'] == 1
+
+
+def test_stem(cps):
+    counter = cps.concordance(['stem'], stem=True)
+    assert len(counter) == 1

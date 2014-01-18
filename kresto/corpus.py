@@ -53,7 +53,9 @@ STOP_WORD_SET = SYMBOL_SET | RP_SET | PRN_SET | IN_SET
 
 class Corpus():
     def __init__(self, text=None):
+        self._stemmer = nltk.LancasterStemmer()
         self.index = collections.defaultdict(set)
+        self.stem_index = collections.defaultdict(set)
         self.sentences = []
 
         if text:
@@ -69,6 +71,8 @@ class Corpus():
 
             for v in sntn.vocab:
                 self.index[v].add(sntn)
+                s = self._stemmer.stem(v)
+                self.stem_index[s].add(sntn)
 
     def load_text(self, fp, name):
         """Load texts from a file"""
@@ -79,20 +83,25 @@ class Corpus():
             content = h.handle(content)
         self.add_text(content)
 
-    def concordance(self, words):
-        words = [w.lower() for w in words]
+    def concordance(self, words, stem=False):
+        if stem:
+            words = [self._stemmer.stem(w.lower()) for w in words]
+            index = self.stem_index
+        else:
+            words = [w.lower() for w in words]
+            index = self.index
 
         if words:
-            index = set(self.index[words[0]])
+            idx = set(index[words[0]])
         else:
             return set()
 
         for word in words[1:]:
-            index &= self.index[word]
-        return index
+            idx &= index[word]
+        return idx
 
-    def find_tag(self, words, tag):
-        index = self.concordance(words)
+    def find_tag(self, words, tag, stem=False):
+        index = self.concordance(words, stem)
         verb_counter = collections.Counter()
         for sentence in index:
             verbs = (t for t in sentence.tokens if t[1].startswith(tag))
@@ -100,8 +109,8 @@ class Corpus():
                 verb_counter[verb] += 1
         return verb_counter
 
-    def used_with(self, words):
-        index = self.concordance(words)
+    def used_with(self, words, stem=False):
+        index = self.concordance(words, stem)
         exclude = set(w.lower() for w in words) | STOP_WORD_SET
         vocab_counter = collections.Counter()
         for sentence in index:
@@ -109,8 +118,8 @@ class Corpus():
                 vocab_counter[word] += 1
         return vocab_counter
 
-    def between(self, word1, word2):
-        index = self.concordance([word1, word2])
+    def between(self, word1, word2, stem=False):
+        index = self.concordance([word1, word2], stem)
         counter = collections.Counter()
         for sentence in index:
             words = [w.lower() for w in sentence.words]
