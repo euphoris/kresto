@@ -31,7 +31,6 @@ def parse(args):
     return parser.parse_args(args.split())
 
 
-
 class CmdShell(cmd.Cmd, object):
     def __init__(self, cps):
         super(CmdShell, self).__init__()
@@ -49,9 +48,22 @@ class CmdShell(cmd.Cmd, object):
         match_re = re.compile('('+'|'.join(words)+')', flags=re.IGNORECASE)
 
         for i, sentence in enumerate(sentences):
-            print(i, ') ',
-                  match_re.sub('\033[30;43m\\1\033[0m', sentence.raw),
-                  sep='')
+            print(i, ') ', sep='', end='')
+            c = 0
+            for word in sentence.words:
+                b = sentence.raw[c:].find(word)
+                if b < 0:
+                    continue
+                print(sentence.raw[c:c+b], end='')
+                c += b + len(word)
+
+                if (word in words or
+                        (args.stem and self._stemmer.stem(word) in words)):
+                    print('\033[30;43m', word, '\033[0m', sep='', end='')
+                else:
+                    print(word, end='')
+            print()
+
             if i >= args.limit:
                 break
 
