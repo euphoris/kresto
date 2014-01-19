@@ -44,11 +44,11 @@ SYMBOL_SET = set('!@#$%^&*()-_+=,.<>;\':"[]{}`~')
 RP_SET = {'a', 'an', 'the', 'this', 'these', 'that', 'those', 'any', 'all'}
 
 PRN_SET = {'i', 'my', 'me',
-            'we', 'our', 'us',
-            'you', 'your',
-            'she', 'her',
-            'he', 'his', 'him',
-            'they', 'their', 'them'}
+           'we', 'our', 'us',
+           'you', 'your',
+           'she', 'her',
+           'he', 'his', 'him',
+           'they', 'their', 'them'}
 
 IN_SET = {'aboard', 'about', 'above', 'across', 'after', 'against', 'along',
           'amid', 'among', 'anti', 'around', 'as', 'at', 'before', 'behind',
@@ -133,7 +133,7 @@ class Corpus():
             i1 = words.index(word1)
             i2 = words.index(word2)
             if i1 < i2:
-                btw = ' '.join(sentence.words[i1+1:i2])
+                btw = ' '.join(sentence.words[(i1 + 1):i2])
                 counter[btw] += 1
         return counter
 
