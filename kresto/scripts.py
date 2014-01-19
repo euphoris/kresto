@@ -8,6 +8,7 @@ import sys
 import nltk
 
 from .data import load_corpus
+from kresto.corpus import Corpus
 
 
 def sort_items(counter):
@@ -25,6 +26,9 @@ def create_parser(nword):
 
 parser = create_parser('+')
 between_parser = create_parser(2)
+
+file_parser = argparse.ArgumentParser()
+file_parser.add_argument('filename')
 
 
 def parse(args):
@@ -87,6 +91,16 @@ class CmdShell(cmd.Cmd, object):
         for word, n in counter[:args.limit]:
             print(word, n)
 
+    def do_load(self, args):
+        args = file_parser.parse_args(args.split())
+        with open(args.filename) as f:
+            self.corpus = Corpus.load(f)
+
+    def do_dump(self, args):
+        args = file_parser.parse_args(args.split())
+        with open(args.filename, 'w') as f:
+            self.corpus.dump(f)
+
     def do_quit(self, args):
         return True
 
@@ -96,9 +110,9 @@ class CmdShell(cmd.Cmd, object):
 def run_command():
     try:
         filename = sys.argv[1]
+        cps = load_corpus(filename)
     except IndexError:
-        print('kresto [filename]')
-        sys.exit(-1)
+        cps = Corpus()
 
-    shell = CmdShell(load_corpus(filename))
+    shell = CmdShell(cps)
     shell.cmdloop()

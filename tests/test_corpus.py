@@ -1,3 +1,5 @@
+from cStringIO import StringIO
+
 import pytest
 from kresto.corpus import Corpus
 
@@ -8,7 +10,7 @@ text = '''Hello world!
           Stemming is easy'''
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def cps():
     return Corpus(text)
 
@@ -57,3 +59,27 @@ def test_between(cps):
 def test_stem(cps):
     counter = cps.concordance(['stem'], stem=True)
     assert len(counter) == 1
+
+
+def test_dump(cps):
+    f = StringIO()
+    cps.dump(f)
+    sentences = '\n'.join(line.strip() for line in text.split('\n'))
+    assert f.getvalue().startswith('4\n' + sentences)
+    f.close()
+
+
+def test_load(cps):
+    f = StringIO()
+    cps.dump(f)
+    content = f.getvalue()
+
+    f = StringIO(content)
+    c = Corpus.load(f)
+
+    raw = lambda ss: set(s.raw for s in ss)
+    assert raw(c.sentences) == raw(cps.sentences)
+    assert raw(c.index['the']) == raw(cps.index['the'])
+
+    assert set(c.index.keys()) == set(cps.index.keys())
+    assert set(c.stem_index.keys()) == set(cps.stem_index.keys())

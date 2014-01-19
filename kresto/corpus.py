@@ -8,7 +8,8 @@ whitespace_re = re.compile(r'\s+')
 
 
 class Sentence():
-    def __init__(self, raw):
+    def __init__(self, raw, id=None):
+        self.id = id
         self.raw = whitespace_re.sub(' ', raw.strip())
         self.words = nltk.word_tokenize(self.raw)
         self._tokens = None
@@ -56,6 +57,7 @@ class Corpus():
         self.index = collections.defaultdict(set)
         self.stem_index = collections.defaultdict(set)
         self.sentences = []
+        self.last_sentence_id = 0
 
         if text:
             self.add_text(text)
@@ -65,8 +67,9 @@ class Corpus():
         sentences = tokenizer.sentences_from_text(text)
 
         for s in sentences:
-            sntn = Sentence(s)
+            sntn = Sentence(s, self.last_sentence_id)
             self.sentences.append(sntn)
+            self.last_sentence_id += 1
 
             for v in sntn.vocab:
                 self.index[v].add(sntn)
@@ -119,3 +122,40 @@ class Corpus():
                 btw = ' '.join(sentence.words[i1+1:i2])
                 counter[btw] += 1
         return counter
+
+    def load_index(self, fp, index):
+        n = int(fp.readline().strip())
+        for _ in range(n):
+            line = fp.readline().strip().split()
+            word = line[0]
+            for s_id in line[1:]:
+                index[word].add(self.sentences[int(s_id)])
+
+    @classmethod
+    def load(cls, fp):
+        c = cls()
+        n = int(fp.readline().strip())
+        for i in range(n):
+            s = Sentence(fp.readline().strip(), i)
+            c.sentences.append(s)
+        c.last_sentence_id = n
+
+        c.load_index(fp, c.index)
+        c.load_index(fp, c.stem_index)
+        return c
+
+    @staticmethod
+    def dump_index(fp, index):
+        fp.write('{}\n'.format(len(index)))
+        for stem, sentences in index.items():
+            fp.write(stem + ' ')
+            fp.write(' '.join(str(s.id) for s in sentences))
+            fp.write('\n')
+
+    def dump(self, fp):
+        fp.write('{}\n'.format(len(self.sentences)))
+        for i, s in enumerate(self.sentences):
+            fp.write(s.raw + '\n')
+
+        self.dump_index(fp, self.index)
+        self.dump_index(fp, self.stem_index)
