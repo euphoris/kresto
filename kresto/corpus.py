@@ -1,3 +1,4 @@
+# encoding: utf8
 import collections
 import re
 
@@ -5,12 +6,25 @@ import nltk
 
 
 whitespace_re = re.compile(r'\s+')
+hyphen_re = re.compile(r'(\w)-\s+(\w)')
 
 
 class Sentence():
     def __init__(self, raw, id=None):
         self.id = id
-        self.raw = whitespace_re.sub(' ', raw.strip())
+
+        raw = whitespace_re.sub(' ', raw.strip())
+        raw = hyphen_re.sub(r'\1\2', raw)
+        try:  # ligatures
+            raw = raw.replace('ﬀ', 'ff')\
+                .replace('ﬁ', 'fi') \
+                .replace('ﬂ', 'fl') \
+                .replace('ﬃ', 'ffi') \
+                .replace('ﬄ', 'ffl')
+        except UnicodeDecodeError:
+            pass
+        self.raw = raw
+
         self.words = nltk.word_tokenize(self.raw)
         self._tokens = None
         self.vocab = set(w.lower() for w in self.words)

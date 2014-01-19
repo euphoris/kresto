@@ -1,7 +1,8 @@
+# encoding: utf8
 from cStringIO import StringIO
 
 import pytest
-from kresto.corpus import Corpus
+from kresto.corpus import Corpus, Sentence
 
 
 text = '''Hello world!
@@ -83,3 +84,13 @@ def test_load(cps):
 
     assert set(c.index.keys()) == set(cps.index.keys())
     assert set(c.stem_index.keys()) == set(cps.stem_index.keys())
+
+
+def test_hyphen():
+    s = Sentence('hello wo- rld.')
+    assert s.raw == 'hello world.'
+
+
+def test_ligatures():
+    s = Sentence('He justiﬁed his answer.')
+    assert s.raw == 'He justified his answer.'
