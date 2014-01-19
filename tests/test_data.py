@@ -38,6 +38,15 @@ def test_load_corpus_from_html():
     assert result[0].raw == 'Hello world.'
 
 
+def test_load_corpus_from_pdf():
+    pdf_path = os.path.join(fixtures_path, 'sample.pdf')
+    corpus = load_corpus(pdf_path)
+    assert len(corpus.sentences) == 4
+
+    result = list(corpus.concordance(['title']))
+    assert result[0].raw == 'This is a title.'
+
+
 def test_load_corpus_recursively():
     corpus = load_corpus(fixtures_path)
     assert len(corpus.concordance(['DOCTYPE'])) == 0

@@ -1,6 +1,5 @@
 import collections
 import re
-import html2text
 
 import nltk
 
@@ -73,15 +72,6 @@ class Corpus():
                 self.index[v].add(sntn)
                 s = self._stemmer.stem(v)
                 self.stem_index[s].add(sntn)
-
-    def load_text(self, fp, name):
-        """Load texts from a file"""
-        content = fp.read()
-        if name.endswith('html') or name.endswith('htm'):
-            h = html2text.HTML2Text()
-            h.ignore_links = True
-            content = h.handle(content)
-        self.add_text(content)
 
     def concordance(self, words, stem=False):
         if stem:

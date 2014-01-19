@@ -17,6 +17,7 @@ setup(
         'numpy>=1.8.0',
         'nltk>=2.0.4',
         'html2text==3.200.3',
+        'pdfminer==20131113',
     ],
     entry_points={
         'console_scripts': [
