@@ -17,6 +17,8 @@ def load_corpus(path):
         for root, _, files in os.walk(path):
             for filename in files:
                 with open(os.path.join(root, filename)) as f:
+                    if filename.endswith('zip'):
+                        continue  # FIXME
                     c.add_text(extract_text(f, filename))
     else:
         if path.endswith('.zip'):
