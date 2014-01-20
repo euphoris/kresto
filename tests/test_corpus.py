@@ -27,16 +27,11 @@ def test_corpus(cps):
     assert 'world' not in sent.vocab
 
 
-def test_index(cps):
-    assert len(cps.index['world']) == 2
-    assert len(cps.index['example']) == 1
-
-
 def test_concordance(cps):
     assert len(cps.concordance(['world'])) == 2
     assert len(cps.concordance(['what', 'world'])) == 1
     assert len(cps.concordance(['bye'])) == 0
-    assert len(cps.concordance([])) == 0
+    assert len(cps.concordance([])) == 4
 
 
 def test_find_verb(cps):
@@ -81,11 +76,8 @@ def test_load(cps):
     c = Corpus.load(f)
 
     raw = lambda ss: set(s.raw for s in ss)
-    assert raw(c.sentences) == raw(cps.sentences)
-    assert raw(c.index['the']) == raw(cps.index['the'])
-
-    assert set(c.index.keys()) == set(cps.index.keys())
-    assert set(c.stem_index.keys()) == set(cps.stem_index.keys())
+    assert raw(c.concordance([])) == raw(cps.concordance([]))
+    assert raw(c.concordance(['the'])) == raw(cps.concordance(['the']))
 
 
 def test_hyphen():

@@ -3,7 +3,7 @@ import collections
 import re
 
 import nltk
-from sqlalchemy import Column, Integer, Text, create_engine
+from sqlalchemy import Column, Integer, Text, create_engine, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import create_session
 
@@ -14,12 +14,17 @@ whitespace_re = re.compile(r'\s+')
 hyphen_re = re.compile(r'(\w)-\s+(\w)')
 
 
+stemmer = nltk.LancasterStemmer()
+
+
 class Sentence(Base):
     __tablename__ = 'sentences'
 
     id = Column(Integer, primary_key=True)
     raw = Column(Text)
     _words = Column(Text)
+    _vocab = Column(Text)
+    _stems = Column(Text)
 
     def __init__(self, raw, id=None):
         raw = whitespace_re.sub(' ', raw.strip())
@@ -33,21 +38,21 @@ class Sentence(Base):
         except UnicodeDecodeError:
             pass
 
+        words = nltk.word_tokenize(raw)
+        vocab = set(w.lower() for w in words)
         kwargs = {
             'raw': raw,
-            '_words': ' '.join(nltk.word_tokenize(raw)),
+            '_words': ' '.join(words),
+            '_vocab': ' ' + ' '.join(vocab) + ' ',
+            '_stems': ' ' + ' '.join(stemmer.stem(w) for w in vocab) + ' '
         }
         if id:
             kwargs['id'] = id
         super(Sentence, self).__init__(**kwargs)
 
-        self._tokens = None
-
     @property
     def tokens(self):
-        if not self._tokens:
-            self._tokens = nltk.pos_tag(self.words)
-        return self._tokens
+        return nltk.pos_tag(self.words)
 
     @property
     def words(self):
@@ -55,7 +60,7 @@ class Sentence(Base):
 
     @property
     def vocab(self):
-        return set(w.lower() for w in self.words)
+        return set(self._vocab.split())
 
     def __hash__(self):
         return hash(self.raw)
@@ -92,11 +97,6 @@ class Corpus():
         self.engine = create_engine('sqlite://')
         Base.metadata.create_all(self.engine)
 
-        self._stemmer = nltk.LancasterStemmer()
-        self.index = collections.defaultdict(set)
-        self.stem_index = collections.defaultdict(set)
-        self.sentences = []
-
         if text:
             self.add_text(text)
 
@@ -111,31 +111,19 @@ class Corpus():
 
         for s in sentences:
             with db.begin():
-                sntn = Sentence(s)
-                self.sentences.append(sntn)
-                db.add(sntn)
-
-            for v in sntn.vocab:
-                self.index[v].add(sntn)
-                s = self._stemmer.stem(v)
-                self.stem_index[s].add(sntn)
+                db.add(Sentence(s))
 
     def concordance(self, words, stem=False):
         if stem:
-            words = [self._stemmer.stem(w.lower()) for w in words]
-            index = self.stem_index
+            words = [stemmer.stem(w.lower()) for w in words]
+            index = Sentence._stems
         else:
             words = [w.lower() for w in words]
-            index = self.index
+            index = Sentence._vocab
 
-        if words:
-            idx = set(index[words[0]])
-        else:
-            return set()
-
-        for word in words[1:]:
-            idx &= index[word]
-        return idx
+        db = self.session()
+        query = (index.contains(' '+word+' ') for word in words)
+        return db.query(Sentence).filter(and_(*query)).all()
 
     def find_tag(self, words, tag, stem=False):
         index = self.concordance(words, stem)
@@ -168,6 +156,9 @@ class Corpus():
         return counter
 
     def load_index(self, fp, index):
+        """
+        Deprecated
+        """
         n = int(fp.readline().strip())
         for _ in range(n):
             line = fp.readline().strip().split()
@@ -182,16 +173,14 @@ class Corpus():
         db = c.session()
         with db.begin():
             for i in range(1, n + 1):
-                s = Sentence(fp.readline().strip(), i)
-                c.sentences.append(s)
-                db.add(s)
-
-        c.load_index(fp, c.index)
-        c.load_index(fp, c.stem_index)
+                db.add(Sentence(fp.readline().strip(), i))
         return c
 
     @staticmethod
     def dump_index(fp, index):
+        """
+        Deprecated
+        """
         fp.write('{}\n'.format(len(index)))
         for stem, sentences in index.items():
             fp.write(stem + ' ')
@@ -204,6 +193,3 @@ class Corpus():
         fp.write('{}\n'.format(sentences.count()))
         for s in sentences.order_by('id'):
             fp.write(s.raw + '\n')
-
-        self.dump_index(fp, self.index)
-        self.dump_index(fp, self.stem_index)
