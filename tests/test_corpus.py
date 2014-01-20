@@ -17,9 +17,11 @@ def cps():
 
 
 def test_corpus(cps):
-    assert len(cps.sentences) == len(text.split('\n'))
+    db = cps.session()
+    sentences = db.query(Sentence)
+    assert sentences.count() == len(text.split('\n'))
 
-    sent = cps.sentences[1]
+    sent = sentences[1]
     assert sent.raw == 'This is an example of corpus.'
     assert 'this' in sent.vocab
     assert 'world' not in sent.vocab

@@ -1,5 +1,6 @@
 import os.path
 
+from kresto.corpus import Sentence
 from kresto.data import load_corpus
 
 
@@ -41,7 +42,8 @@ def test_load_corpus_from_html():
 def test_load_corpus_from_pdf():
     pdf_path = os.path.join(fixtures_path, 'sample.pdf')
     corpus = load_corpus(pdf_path)
-    assert len(corpus.sentences) == 4
+    db = corpus.session()
+    assert db.query(Sentence).count() == 4
 
     result = list(corpus.concordance(['title']))
     assert result[0].raw == 'This is a title.'

@@ -18,6 +18,7 @@ setup(
         'nltk>=2.0.4',
         'html2text==3.200.3',
         'pdfminer==20131113',
+        'sqlalchemy>=0.9',
     ],
     entry_points={
         'console_scripts': [
