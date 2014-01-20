@@ -49,8 +49,6 @@ class CmdShell(cmd.Cmd, object):
             words = args.words
         sentences = self.corpus.concordance(words, args.stem)
 
-        match_re = re.compile('('+'|'.join(words)+')', flags=re.IGNORECASE)
-
         for i, sentence in enumerate(sentences):
             print(i, ') ', sep='', end='')
             c = 0
